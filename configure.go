@@ -1,8 +1,10 @@
 package configure
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 
@@ -47,4 +49,21 @@ func Load(name string, cfg interface{}) error {
 	}
 
 	return nil
+}
+
+// Edit run editor for edit config file
+func Edit(name string, editor string) error {
+	if len(editor) == 0 {
+		return errors.New("editor is empty")
+	}
+
+	dir := ConfigDir(name)
+	file := filepath.Join(dir, "config.toml")
+	cmd := exec.Command(editor, file)
+
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
 }
