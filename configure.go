@@ -51,6 +51,21 @@ func Load(name string, cfg interface{}) error {
 	return nil
 }
 
+// Save saves config to file
+func Save(name string, cfg interface{}) error {
+	dir := ConfigDir(name)
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return fmt.Errorf("cannot create directory: %v", err)
+	}
+	file := filepath.Join(dir, "config.toml")
+
+	f, err := os.Create(file)
+	if err != nil {
+		return fmt.Errorf("cannot create config file: %v", err)
+	}
+	return toml.NewEncoder(f).Encode(cfg)
+}
+
 // Edit run editor for edit config file
 func Edit(name string, editor string) error {
 	if len(editor) == 0 {
