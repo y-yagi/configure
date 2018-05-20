@@ -82,3 +82,11 @@ func Edit(name string, editor string) error {
 
 	return cmd.Run()
 }
+
+// Exist check config file exist or not
+func Exist(name string) bool {
+	dir := ConfigDir(name)
+	filename := filepath.Join(dir, "config.toml")
+	_, err := os.Stat(filename)
+	return err == nil
+}
