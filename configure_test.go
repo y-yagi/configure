@@ -20,6 +20,19 @@ func TestConfigDir(t *testing.T) {
 	}
 }
 
+func TestCustomizeConfigDir(t *testing.T) {
+	os.Setenv("CONFIGURE_DIRECTORY", "/tmp/config")
+	defer os.Unsetenv("CONFIGURE_DIRECTORY")
+
+	configDir := ConfigDir("myrepo")
+
+	expect := filepath.Join("/tmp/config", "myrepo")
+
+	if configDir != expect {
+		t.Fatalf("Expect config dir is %s, but %s", expect, configDir)
+	}
+}
+
 func TestSave(t *testing.T) {
 	name := "configure_test"
 	if err := Save(name, config{Path: "dummy", Max: 20}); err != nil {
