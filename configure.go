@@ -15,6 +15,11 @@ import (
 func ConfigDir(name string) string {
 	var dir string
 
+	dir = os.Getenv("CONFIGURE_DIRECTORY")
+	if dir != "" {
+		return filepath.Join(dir, name)
+	}
+
 	if runtime.GOOS == "windows" {
 		dir = os.Getenv("APPDATA")
 		if dir == "" {
