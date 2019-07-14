@@ -12,6 +12,7 @@ import (
 )
 
 // ConfigDir return config directory
+// TODO: Use Go standard `os.UserConfigDir`.
 func ConfigDir(name string) string {
 	var dir string
 
