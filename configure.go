@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/BurntSushi/toml"
+	"github.com/pelletier/go-toml"
 )
 
 // ConfigDir return config directory
@@ -43,7 +43,12 @@ func Load(name string, cfg interface{}) error {
 
 	_, err := os.Stat(file)
 	if err == nil {
-		_, err := toml.DecodeFile(file, cfg)
+		f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+
+		err = toml.NewDecoder(f).Decode(cfg)
 		if err != nil {
 			return err
 		}
