@@ -11,6 +11,42 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
+type Configure struct {
+	Name      string
+	BackupDir string
+}
+
+func (c *Configure) ConfigDir() string {
+	return ConfigDir(c.Name)
+}
+
+func (c *Configure) Load(cfg interface{}) error {
+	return Load(c.Name, cfg)
+}
+
+func (c *Configure) Save(cfg interface{}) error {
+	if len(c.BackupDir) == 0 {
+		return Save(c.Name, cfg)
+	}
+
+	dir := ConfigDir(c.Name)
+	filename := filepath.Join(dir, "config.toml")
+	backupFilename := filepath.Join(c.BackupDir, "config.toml")
+	if err := os.Rename(filename, backupFilename); err != nil {
+		return err
+	}
+
+	return Save(c.Name, cfg)
+}
+
+func (c *Configure) Edit(editor string) error {
+	return Edit(c.Name, editor)
+}
+
+func (c *Configure) Exist() bool {
+	return Exist(c.Name)
+}
+
 // ConfigDir return config directory
 // TODO: Use Go standard `os.UserConfigDir`.
 func ConfigDir(name string) string {

@@ -1,6 +1,7 @@
 package configure
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -53,6 +54,52 @@ func TestSave(t *testing.T) {
 	if cfg.Max != 20 {
 		t.Fatalf("Expect is %d, but %d", 20, cfg.Max)
 	}
+}
+
+func TestSaveWithBackup(t *testing.T) {
+	name := "configure_test"
+	if err := Save(name, config{Path: "dummy", Max: 20}); err != nil {
+		t.Fatalf("Unexpected error %v", err)
+	}
+	configDir := ConfigDir(name)
+	defer os.RemoveAll(configDir)
+
+	tempDir, err := ioutil.TempDir("", "configuretest")
+	if err != nil {
+		t.Fatalf("Unexpected error %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	c := Configure{Name: name, BackupDir: tempDir}
+	if err := c.Save(config{Path: "new_dummy", Max: 120}); err != nil {
+		t.Fatalf("Unexpected error %v", err)
+	}
+
+	var cfg config
+	if err := c.Load(&cfg); err != nil {
+		t.Fatalf("Unexpected error %v", err)
+	}
+
+	if cfg.Path != "new_dummy" {
+		t.Fatalf("Expect is %s, but %s", "new_dummy", cfg.Path)
+	}
+
+	if cfg.Max != 120 {
+		t.Fatalf("Expect is %d, but %d", 120, cfg.Max)
+	}
+
+	got, err := ioutil.ReadFile(filepath.Join(tempDir, "config.toml"))
+	if err != nil {
+		t.Fatalf("Unexpected error %v", err)
+	}
+
+	expected := `Max = 20
+Path = "dummy"
+`
+	if string(got) != expected {
+		t.Fatalf("Expect is %v, but %v", expected, string(got))
+	}
+
 }
 
 func TestExist(t *testing.T) {
