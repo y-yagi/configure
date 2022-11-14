@@ -1,7 +1,6 @@
 package configure
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -64,7 +63,7 @@ func TestSaveWithBackup(t *testing.T) {
 	configDir := ConfigDir(name)
 	defer os.RemoveAll(configDir)
 
-	tempDir, err := ioutil.TempDir("", "configuretest")
+	tempDir, err := os.MkdirTemp("", "configuretest")
 	if err != nil {
 		t.Fatalf("Unexpected error %v", err)
 	}
@@ -88,7 +87,7 @@ func TestSaveWithBackup(t *testing.T) {
 		t.Fatalf("Expect is %d, but %d", 120, cfg.Max)
 	}
 
-	got, err := ioutil.ReadFile(filepath.Join(tempDir, "config.toml"))
+	got, err := os.ReadFile(filepath.Join(tempDir, "config.toml"))
 	if err != nil {
 		t.Fatalf("Unexpected error %v", err)
 	}
